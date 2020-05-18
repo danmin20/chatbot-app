@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import Axios from "axios";
 
 const Wrapper = styled.div`
   height: 600px;
@@ -25,12 +26,49 @@ const InputBox = styled.input`
 `;
 
 export default () => {
+  // dialogflow format
+  const textQuery = async (text) => {
+    // message we sent
+    let conversation = {
+      who: "user",
+      content: {
+        text: {
+          text,
+        },
+      },
+    };
+    // message chatbot sent
+    const textQueryVar = { text };
+    try {
+      // send request to textQuery route
+      const response = await Axios.post(
+        "/api/dialogflow/textQuery",
+        textQueryVar
+      );
+      const content = response.data.fulfillmentMessages[0];
+      conversation = {
+        who: "bot",
+        content,
+      };
+      console.log(conversation);
+    } catch (e) {
+      conversation = {
+        who: "bot",
+        content: {
+          text: {
+            text: "Error!!",
+          },
+        },
+      };
+    }
+  };
   const keyPressHandler = (e) => {
     if (e.key === "Enter") {
       if (!e.target.value) {
         return alert("Type something!");
       }
       // request to textQuery route
+      textQuery(e.target.value);
       e.target.value = "";
     }
   };
