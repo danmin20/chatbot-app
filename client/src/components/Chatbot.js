@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import Axios from "axios";
 
@@ -26,6 +26,10 @@ const InputBox = styled.input`
 `;
 
 export default () => {
+  // welcome intent
+  useEffect(() => {
+    eventQuery("Welcome");
+  }, []);
   // dialogflow format
   const textQuery = async (text) => {
     // message we sent
@@ -44,6 +48,33 @@ export default () => {
       const response = await Axios.post(
         "/api/dialogflow/textQuery",
         textQueryVar
+      );
+      const content = response.data.fulfillmentMessages[0];
+      conversation = {
+        who: "bot",
+        content,
+      };
+      console.log(conversation);
+    } catch (e) {
+      conversation = {
+        who: "bot",
+        content: {
+          text: {
+            text: "Error!!",
+          },
+        },
+      };
+    }
+  };
+  const eventQuery = async (event) => {
+    // message chatbot sent
+    const eventQueryVar = { event };
+    let conversation = {};
+    try {
+      // send request to eventQuery route
+      const response = await Axios.post(
+        "/api/dialogflow/eventQuery",
+        eventQueryVar
       );
       const content = response.data.fulfillmentMessages[0];
       conversation = {
