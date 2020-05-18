@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import Axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { saveMessage } from "../_actions/actions";
 
 const Wrapper = styled.div`
   height: 600px;
@@ -26,11 +28,14 @@ const InputBox = styled.input`
 `;
 
 export default () => {
+  // trigger actions with dispatch
+  const dispatch = useDispatch();
+
   // welcome intent
   useEffect(() => {
     eventQuery("Welcome");
   }, []);
-  // dialogflow format
+
   const textQuery = async (text) => {
     // message we sent
     let conversation = {
@@ -41,6 +46,10 @@ export default () => {
         },
       },
     };
+
+    dispatch(saveMessage(conversation));
+    console.log("text I sent", conversation);
+
     // message chatbot sent
     const textQueryVar = { text };
     try {
@@ -66,10 +75,12 @@ export default () => {
       };
     }
   };
+
   const eventQuery = async (event) => {
     // message chatbot sent
     const eventQueryVar = { event };
     let conversation = {};
+
     try {
       // send request to eventQuery route
       const response = await Axios.post(
@@ -93,6 +104,7 @@ export default () => {
       };
     }
   };
+
   const keyPressHandler = (e) => {
     if (e.key === "Enter") {
       if (!e.target.value) {
@@ -103,6 +115,7 @@ export default () => {
       e.target.value = "";
     }
   };
+
   return (
     <Wrapper>
       <Chat></Chat>
